@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Game and Watch</title>
+    <style type="text/css">
+      input.number {
+        width: 40px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Game and Watch</h1>
+
+    <div id="game">
+      <h2>Number: <span id="generated-number"></span></h2>
+      <div id="sprite">
+      </div>
+      <button id="generate">Generate</button>
+    </div>
+
+    <div id="results">
+      <h2>Previous Results</h2>
+    </div>
+  
+    <script type="text/javascript">
+      var generateCount;
+      var localStorage;
+      var numberDict = {
+        0: 'one',
+        1: 'two',
+        2: 'three',
+        3: 'four',
+        4: 'five',
+        5: 'six',
+        6: 'seven',
+        7: 'eight',
+        8: 'nine',
+        9: 'ten'
+      };
+
+      var updateResults = function (key, value) {
+        generateCount[key] = value;
+        var field = document.getElementById(numberDict[key]);
+        field.value = generateCount[key];
+        localStorage.setItem('generateCount', JSON.stringify(generateCount));
+      }
+
+      var autorun = function()
+      {
+        localStorage = window.localStorage;
+        generateCount = JSON.parse(localStorage.getItem('generateCount')) || [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+        // Create results table from local storage
+        var header = document.createElement('tr');
+        var body = document.createElement('tr');
+        for (var key in numberDict) {
+          var headerItem = document.createElement('th')
+          headerItem.innerText = JSON.parse(key) + 1;
+          header.appendChild(headerItem);
+
+          var bodyItem = document.createElement('td');
+          var field = document.createElement("input");
+          field.type = "number";
+          field.className = "number";
+          field.id = numberDict[key];
+          field.value = generateCount[key];
+          field.dataset['number'] = key;
+          field.onchange = function(e) {
+            updateResults(JSON.parse(this.dataset['number']), JSON.parse(this.value));
+          };
+          bodyItem.appendChild(field);
+          body.appendChild(bodyItem);
+        }
+        var resultsTable = document.createElement('table');
+        resultsTable.appendChild(header);
+        resultsTable.appendChild(body);
+        var results = document.getElementById('results');
+        results.appendChild(resultsTable);
+
+        document.getElementById('generate').onclick = function(e) {
+          var random = Math.floor((Math.random() * 10));
+          document.getElementById('generated-number').innerText = random + 1;
+          updateResults(random, generateCount[random] + 1);
+        }
+      }
+      if (window.addEventListener) window.addEventListener("load", autorun, false);
+      else if (window.attachEvent) window.attachEvent("onload", autorun);
+      else window.onload = autorun;
+    </script>
+  </body>
+</html>
