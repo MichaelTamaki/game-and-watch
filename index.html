@@ -4,84 +4,207 @@
     <meta charset="UTF-8">
     <title>Game and Watch</title>
     <style type="text/css">
+      .container {
+        display: flex;
+      }
+
+      .left-column {
+        flex: auto;
+      }
+
+      #sprite {
+        width: 192px;
+        height: 332px;
+        background-image: url(spritesheet.png);
+        background-repeat: no-repeat;
+        background-size: 925%;
+      }
+
+      #sprite.one {
+        background-position: 0 0;
+      }
+
+      #sprite.two {
+        background-position: 12.3% 0;
+      }
+
+      #sprite.three {
+        background-position: 24.7% 0;
+      }
+
+      #sprite.four {
+        background-position: 37.3% 0;
+      }
+
+      #sprite.five {
+        background-position: 50% 0;
+      }
+
+      #sprite.six {
+        background-position: 62.7% 0;
+      }
+
+      #sprite.seven {
+        background-position: 75.3% 0;
+      }
+
+      #sprite.eight {
+        background-position: 88% 0;
+      }
+
+      #sprite.nine {
+        background-position: 100% 0;
+      }
+
+      .right-column {
+        min-width: 500px;
+      }
+
+      table {
+        width: 100%;
+        text-align: left;
+      }
+
+      td, th {
+        padding: 3px 0;
+      }
+
+      tr:nth-child(even) {
+        background-color: #f2f2f2;
+      }
+
+      tr.highlighted {
+        font-size: xx-large;
+        font-style: italic;
+      }
+
       input.number {
         width: 40px;
       }
     </style>
   </head>
   <body>
+
+    <audio id="audio-nine">
+      <source src="nine.mp4" type="audio/mpeg">
+      Can't run audio on this device
+    </audio>
+
     <h1>Game and Watch</h1>
 
-    <div id="game">
-      <h2>Number: <span id="generated-number"></span></h2>
-      <div id="sprite">
-      </div>
-      <button id="generate">Generate</button>
-    </div>
+    <div class="container">
 
-    <div id="results">
-      <h2>Previous Results</h2>
+      <div id="game" class="left-column">
+        <h2>Number: <span id="generated-number"></span></h2>
+        <div id="sprite">
+        </div>
+        <button id="generate">Generate</button>
+      </div>
+
+      <div id="results" class="right-column">
+        <table>
+          <tbody id="results-table">
+            <tr>
+              <th>Number</th>
+              <th>Action</th>
+              <th>Count</th>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
     </div>
   
     <script type="text/javascript">
       var generateCount;
       var localStorage;
-      var numberDict = {
-        0: 'one',
-        1: 'two',
-        2: 'three',
-        3: 'four',
-        4: 'five',
-        5: 'six',
-        6: 'seven',
-        7: 'eight',
-        8: 'nine',
-        9: 'ten'
-      };
+      var sprite;
+      var numberList = [
+        null,
+        'one',
+        'two',
+        'three',
+        'four',
+        'five',
+        'six',
+        'seven',
+        'eight',
+        'nine'
+      ];
+      var actionList = [
+        null,
+        'Nick shocks himself',
+        'Lil drink',
+        'Quarter drink',
+        'Half drink',
+        'Full drink',
+        'Fireball',
+        'Fruit snack',
+        'Get Iced bro',
+        'You get shocked'
+      ];
 
       var updateResults = function (key, value) {
         generateCount[key] = value;
-        var field = document.getElementById(numberDict[key]);
+        var field = document.getElementById(numberList[key]);
         field.value = generateCount[key];
         localStorage.setItem('generateCount', JSON.stringify(generateCount));
       }
 
       var autorun = function()
       {
+        sprite = document.getElementById('sprite');
+
         localStorage = window.localStorage;
-        generateCount = JSON.parse(localStorage.getItem('generateCount')) || [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        generateCount = JSON.parse(localStorage.getItem('generateCount')) || [null, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
         // Create results table from local storage
-        var header = document.createElement('tr');
-        var body = document.createElement('tr');
-        for (var key in numberDict) {
-          var headerItem = document.createElement('th')
-          headerItem.innerText = JSON.parse(key) + 1;
-          header.appendChild(headerItem);
+        var resultsTable = document.getElementById('results-table');
+        for (var i = 1; i < numberList.length; i++) {
+          var headerItem = document.createElement('td')
+          headerItem.innerText = i;
 
-          var bodyItem = document.createElement('td');
-          var field = document.createElement("input");
-          field.type = "number";
-          field.className = "number";
-          field.id = numberDict[key];
-          field.value = generateCount[key];
-          field.dataset['number'] = key;
+          var actionItem = document.createElement('td');
+          actionItem.innerText = actionList[i];
+
+          var countItem = document.createElement('td');
+          var field = document.createElement('input');
+          field.type = 'number';
+          field.className = 'number';
+          field.id = numberList[i];
+          field.value = generateCount[i];
+          field.dataset['number'] = i
           field.onchange = function(e) {
             updateResults(JSON.parse(this.dataset['number']), JSON.parse(this.value));
           };
-          bodyItem.appendChild(field);
-          body.appendChild(bodyItem);
+          countItem.appendChild(field);
+
+          var resultRow = document.createElement('tr');
+          resultRow.id = 'row-' + i;
+          resultRow.classList.add('row');
+          resultRow.appendChild(headerItem);
+          resultRow.appendChild(actionItem);
+          resultRow.appendChild(countItem);
+          resultsTable.appendChild(resultRow);
         }
-        var resultsTable = document.createElement('table');
-        resultsTable.appendChild(header);
-        resultsTable.appendChild(body);
-        var results = document.getElementById('results');
-        results.appendChild(resultsTable);
 
         document.getElementById('generate').onclick = function(e) {
-          var random = Math.floor((Math.random() * 10));
-          document.getElementById('generated-number').innerText = random + 1;
-          updateResults(random, generateCount[random] + 1);
+          document.getElementById('generated-number').innerText = 'Generating...';
+          document.getElementById('sprite').classList = '';
+          var rows = document.getElementsByClassName('highlighted');
+          while (rows[0]) {
+            rows[0].classList.remove('highlighted');
+          }
+          window.setTimeout(function() {
+            var random = Math.floor((Math.random() * 9)) + 1;
+            document.getElementById('generated-number').innerText = random;
+            updateResults(random, generateCount[random] + 1);
+            document.getElementById('row-' + random).classList.add('highlighted');
+            document.getElementById('sprite').classList.add(numberList[random]);
+            if (random == 9) {
+              document.getElementById('audio-nine').play();
+            }
+          }, 1000)
         }
       }
       if (window.addEventListener) window.addEventListener("load", autorun, false);
