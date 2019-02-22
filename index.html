@@ -20,6 +20,10 @@
         background-size: 925%;
       }
 
+      #sprite.clear {
+        background-image: none;
+      }
+
       #sprite.one {
         background-position: 0 0;
       }
@@ -96,8 +100,7 @@
 
       <div id="game" class="left-column">
         <h2>Number: <span id="generated-number"></span></h2>
-        <div id="sprite">
-        </div>
+        <div id="sprite" class="clear"></div>
         <button id="generate">Generate</button>
       </div>
 
@@ -190,7 +193,7 @@
 
         document.getElementById('generate').onclick = function(e) {
           document.getElementById('generated-number').innerText = 'Generating...';
-          document.getElementById('sprite').classList = '';
+          document.getElementById('sprite').classList = 'clear';
           var rows = document.getElementsByClassName('highlighted');
           while (rows[0]) {
             rows[0].classList.remove('highlighted');
@@ -200,7 +203,7 @@
             document.getElementById('generated-number').innerText = random;
             updateResults(random, generateCount[random] + 1);
             document.getElementById('row-' + random).classList.add('highlighted');
-            document.getElementById('sprite').classList.add(numberList[random]);
+            document.getElementById('sprite').classList = numberList[random];
             if (random == 9) {
               document.getElementById('audio-nine').play();
             }
