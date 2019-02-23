@@ -3,6 +3,9 @@
   <head>
     <meta charset="UTF-8">
     <title>Game and Watch</title>
+
+    <link rel="preload" href="spritesheet.png" as="image">
+
     <style type="text/css">
       .container {
         display: flex;
@@ -69,6 +72,10 @@
         text-align: left;
       }
 
+      th.small-th {
+        width: 65px;
+      }
+
       td, th {
         padding: 3px 0;
       }
@@ -108,9 +115,9 @@
         <table>
           <tbody id="results-table">
             <tr>
-              <th>Number</th>
+              <th class="small-th">Number</th>
               <th>Action</th>
-              <th>Count</th>
+              <th class="small-th">Count</th>
             </tr>
           </tbody>
         </table>
@@ -154,8 +161,7 @@
         localStorage.setItem('generateCount', JSON.stringify(generateCount));
       }
 
-      var autorun = function()
-      {
+      var autorun = function() {
         sprite = document.getElementById('sprite');
 
         localStorage = window.localStorage;
